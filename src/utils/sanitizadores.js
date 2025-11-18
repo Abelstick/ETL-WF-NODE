@@ -12,17 +12,24 @@ function cleanValue(value) {
 
 // Convierte a número seguro
 function toNumber(value) {
-    if (value === null || value === undefined) return null;
+    if (value === null || value === undefined) return 0;
     const n = Number(value);
-    return isNaN(n) ? null : n;
+    return isNaN(n) ? 0 : n;
 }
 
 function toBit(value) {
-    const v = cleanValue(value).toLowerCase();
+    const cleaned = cleanValue(value);
+
+    if (cleaned === null) return 0;
+
+    const v = String(cleaned).toLowerCase();
+
     if (["1", "si", "true"].includes(v)) return 1;
     if (["0", "no", "false", ""].includes(v)) return 0;
+
     return 0;
 }
+
 
 function normalizeVarcharNumber(value) {
     const v = cleanValue(value);
@@ -33,8 +40,19 @@ function normalizeVarcharNumber(value) {
     // Si es un número válido (incluye negativos)
     if (!isNaN(Number(v))) return String(v);
 
-    // Cualquier otro caso raro → 0
     return "0";
 }
 
-export { cleanValue, toNumber, toBit, normalizeVarcharNumber };
+function getMappedExcelKey(raw, excelCol) {
+    const rawKeys = Object.keys(raw);
+
+    // Buscar coincidencia exacta (rápido)
+    if (rawKeys.includes(excelCol)) return excelCol;
+
+    // Buscar coincidencia case-insensitive
+    const found = rawKeys.find(k => k.toLowerCase() === excelCol.toLowerCase());
+    return found ?? null;
+}
+
+
+export { cleanValue, toNumber, toBit, normalizeVarcharNumber, getMappedExcelKey };

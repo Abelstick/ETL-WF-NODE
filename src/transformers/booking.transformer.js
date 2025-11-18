@@ -1,7 +1,7 @@
 import { bookingMapping } from "../mappings/booking.js";
-import { getProductoByCampanha, findPuertoByName, findLugarEmisionBLByName } from "../repositories/booking.repository.js";
+import { getProductoByCampanha, findPuertoByName, findLugarEmisionBLByName, findCondicionFleteByName } from "../repositories/booking.repository.js";
 import { excelDateToJSDate } from "../utils/excel.js";
-import { cleanValue, normalizeVarcharNumber, toBit, toNumber } from "../utils/sanitizadores.js";
+import { cleanValue, getMappedExcelKey, normalizeVarcharNumber, toBit, toNumber } from "../utils/sanitizadores.js";
 
 export async function normalizeBookingRow(raw) {
     const data = {};
@@ -9,7 +9,10 @@ export async function normalizeBookingRow(raw) {
     // Aplicamos mapeo Excel → parámetros
     for (const excelCol in bookingMapping) {
         const param = bookingMapping[excelCol];
-        let valor = raw[excelCol] ?? "";
+
+        const realKey = getMappedExcelKey(raw, excelCol);
+
+        let valor = realKey ? raw[realKey] : "";
 
         // Forzar a string
         if (valor != null && typeof valor !== "string") {
@@ -76,8 +79,20 @@ export async function normalizeBookingRow(raw) {
         data.IdLugarEmisionBL = Number(valLugar);
     }
 
+    // Condición Flete
+    let valCondicionFlete = cleanValue(data.IdCondicionFlete);
+    if (!valCondicionFlete) {
+        data.IdCondicionFlete = 0;
+    } else if (isNaN(valCondicionFlete)) {
+        const condicion = await findCondicionFleteByName(valCondicionFlete);
+        data.IdCondicionFlete = condicion ? condicion.IdCondicionFlete : 0;
+    } else {
+        data.IdCondicionFlete = Number(valCondicionFlete);
+    }
+
     const camposNumericos = [
         "IdTecnologia",
+        "IdNaviera",
         "IdCondicionFlete",
         "IdLugarEmisionBL",
         "IdProveedorFlete",

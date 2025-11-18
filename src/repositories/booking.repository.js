@@ -28,6 +28,15 @@ export async function findLugarEmisionBLByName(name) {
     return result.recordset[0] ?? null;
 }
 
+export async function findCondicionFleteByName(name) {
+    const pool = await getConnection();
+    const result = await pool
+        .request()
+        .input("name", sql.VarChar, name)
+        .query("SELECT IdCondicionFlete, CondicionFlete FROM CondicionFlete WHERE CondicionFlete = @name");
+    return result.recordset[0] ?? null;
+}
+
 export async function getProductoByCampanha(idCampanha) {
   const pool = await getConnection();
 
