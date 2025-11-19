@@ -22,31 +22,30 @@ export function readExcel(filePath) {
 export function excelDateToJSDate(excelDate) {
   if (!excelDate) return null;
 
-  // Si es número, asumimos formato Excel serial date
+  // Si viene como número (serial de Excel)
   if (typeof excelDate === "number") {
-    const jsDate = new Date(Math.round((excelDate - 25569) * 86400 * 1000));
-    return jsDate;
+    return new Date(Math.round((excelDate - 25569) * 86400 * 1000));
   }
 
-  // Si es string, intentar parsear
+  // Manejo de strings
   if (typeof excelDate === "string") {
-    const parsed = Date.parse(excelDate);
-    if (!isNaN(parsed)) return new Date(parsed);
+    // Detectar formato dd/mm/yyyy o d/m/yyyy
+    if (excelDate.includes("/")) {
+      const parts = excelDate.split("/").map(Number);
 
-    // A veces Excel devuelve "dd/mm/yyyy", forzar swap
-    const parts = excelDate.split("/");
-    if (parts.length === 3) {
-      const [day, month, year] = parts.map(Number);
-      if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-        return new Date(year, month - 1, day);
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+          return new Date(year, month - 1, day);
+        }
       }
     }
 
-    return null;
+    // Cualquier otro formato, intentar parsearlo
+    const parsed = Date.parse(excelDate);
+    return isNaN(parsed) ? null : new Date(parsed);
   }
-
-  // Si ya es Date
-  if (excelDate instanceof Date && !isNaN(excelDate)) return excelDate;
 
   return null;
 }
+
