@@ -44,6 +44,7 @@ export async function normalizeBookingRow(raw) {
 
 
     // Normalizar ETA y ETD
+
     data.ETA = excelDateToJSDate(data.ETA) || null;
     data.ETD = excelDateToJSDate(data.ETD) || null;
 

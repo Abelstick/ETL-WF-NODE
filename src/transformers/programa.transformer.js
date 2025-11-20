@@ -8,7 +8,7 @@ import {
 
 import { excelDateToJSDate } from "../utils/excel.js";
 import { normalizeEstadoMaquila } from "../utils/programa.helper.js";
-import { cleanValue, getMappedExcelKey, normalizeDecimal, toBit, toNumber } from "../utils/sanitizadores.js";
+import { cleanTemperature, cleanValue, getMappedExcelKey, normalizeDecimal, normalizeVarchar, toBit, toNumber } from "../utils/sanitizadores.js";
 
 export async function normalizeProgramaRow(raw) {
 
@@ -20,10 +20,13 @@ export async function normalizeProgramaRow(raw) {
         const realKey = getMappedExcelKey(raw, excelColumnName);
         let valor = realKey ? raw[realKey] : "";
 
-        // Si no es string → convertir a string
-        if (valor != null && typeof valor !== "string") {
+        // NO convertir fechas serializadas a string
+        if (typeof valor === "number") {
+            // probablemente fecha → dejar así
+        } else if (valor != null) {
             valor = String(valor);
         }
+
         valor = cleanValue(valor);
         data[paramName] = valor ?? "";
     }
@@ -37,6 +40,7 @@ export async function normalizeProgramaRow(raw) {
     data.ETA = excelDateToJSDate(data.ETA) || null;
     data.ETD = excelDateToJSDate(data.ETD) || null;
     data.FechaEmisionMaquila = excelDateToJSDate(data.FechaEmisionMaquila) || null;
+    data.FechaEmision = excelDateToJSDate(data.FechaEmision) || null;
 
     // 3. Obtener IdProducto según campaña
     const prod = await getProductoByCampanha(data.IdCampanha);
@@ -112,32 +116,64 @@ export async function normalizeProgramaRow(raw) {
 
     // 9. Estado Maquila
     normalizeEstadoMaquila(data, raw["ESTADOMAQUILA"]);
-
+    console.log('data 1 +-', data)
     // 10. LAR desde raw
     const rawLAR = cleanValue(raw["LAR"]);
     data.LAR = rawLAR ? 1 : 0;
 
     // 11. LOADINGDATE → FechaCarga + HoraCarga
-    const loadingRaw = cleanValue(raw["LOADING DATE"]);
+    let loadingRaw = raw["LOADING DATE"];
     data.FechaCarga = "";
     data.HoraCarga = "";
 
-    if (loadingRaw) {
-        const match = loadingRaw.match(
-            /^(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})(?:\s+(\d{1,2}:\d{2}(?::\d{2})?))?/i
-        );
+    if (loadingRaw !== null && loadingRaw !== undefined && loadingRaw !== "") {
 
-        if (match) {
-            const fechaTxt = match[1];
-            const horaTxt = match[2] || "";
+        // Caso 1: Excel entrega número (fecha serial)
+        if (typeof loadingRaw === "number") {
 
-            const fecha = excelDateToJSDate(fechaTxt);
-            data.FechaCarga = fecha instanceof Date && !isNaN(fecha) ? fecha : "";
-            data.HoraCarga = horaTxt.trim();
+            // Convertir número Excel → fecha JS (serial base 1899-12-30)
+            const excelEpoch = new Date(1899, 11, 30);
+
+            const fechaCompleta = new Date(
+                excelEpoch.getTime() + loadingRaw * 24 * 60 * 60 * 1000
+            );
+
+            // Separar fecha y hora
+            data.FechaCarga = new Date(
+                fechaCompleta.getFullYear(),
+                fechaCompleta.getMonth(),
+                fechaCompleta.getDate()
+            );
+
+            data.HoraCarga = fechaCompleta
+                .toTimeString()
+                .split(" ")[0]  // hh:mm:ss
+                .substring(0, 5); // hh:mm
+
+        } else {
+            // Caso 2: Excel entrega texto (4/09/2023 09:00)
+            loadingRaw = String(loadingRaw);
+
+            const match = loadingRaw.match(
+                /^(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})(?:\s+(\d{1,2}:\d{2}(?::\d{2})?))?/i
+            );
+
+            if (match) {
+                const fechaTxt = match[1];
+                const horaTxt = match[2] || "";
+
+                const fecha = excelDateToJSDate(fechaTxt);
+
+                data.FechaCarga = fecha instanceof Date && !isNaN(fecha) ? fecha : "";
+                data.HoraCarga = horaTxt.trim();
+            }
         }
     }
-
+    data.Temperatura = cleanTemperature(data.Temperatura);
     data.Monto = normalizeDecimal(data.Monto);
+    data.Senasa = normalizeVarchar(data.Senasa);
+    data.GuiaRemision = normalizeVarchar(data.GuiaRemision);
+    console.log('data 2 +-', data)
 
     return data;
 }

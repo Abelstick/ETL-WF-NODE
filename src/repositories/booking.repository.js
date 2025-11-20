@@ -11,30 +11,30 @@ export async function bookingExists(booking) {
 }
 
 export async function findPuertoByName(name) {
-    const pool = await getConnection();
-    const result = await pool
-        .request()
-        .input("name", sql.VarChar, `%${name}%`)
-        .query("SELECT TOP 1 id_puerto, nm_puerto FROM Puerto WHERE nm_puerto LIKE @name");
-    return result.recordset[0] ?? null;
+  const pool = await getConnection();
+  const result = await pool
+    .request()
+    .input("name", sql.VarChar, `%${name}%`)
+    .query("SELECT TOP 1 id_puerto, nm_puerto FROM Puerto WHERE nm_puerto LIKE @name");
+  return result.recordset[0] ?? null;
 }
 
 export async function findLugarEmisionBLByName(name) {
-    const pool = await getConnection();
-    const result = await pool
-        .request()
-        .input("name", sql.VarChar, name)
-        .query("SELECT IdLugarEmisionBL, LugarEmisionBL FROM LugarEmisionBL WHERE LugarEmisionBL = @name");
-    return result.recordset[0] ?? null;
+  const pool = await getConnection();
+  const result = await pool
+    .request()
+    .input("name", sql.VarChar, name)
+    .query("SELECT IdLugarEmisionBL, LugarEmisionBL FROM LugarEmisionBL WHERE LugarEmisionBL = @name");
+  return result.recordset[0] ?? null;
 }
 
 export async function findCondicionFleteByName(name) {
-    const pool = await getConnection();
-    const result = await pool
-        .request()
-        .input("name", sql.VarChar, name)
-        .query("SELECT IdCondicionFlete, CondicionFlete FROM CondicionFlete WHERE CondicionFlete = @name");
-    return result.recordset[0] ?? null;
+  const pool = await getConnection();
+  const result = await pool
+    .request()
+    .input("name", sql.VarChar, name)
+    .query("SELECT IdCondicionFlete, CondicionFlete FROM CondicionFlete WHERE CondicionFlete = @name");
+  return result.recordset[0] ?? null;
 }
 
 export async function getProductoByCampanha(idCampanha) {

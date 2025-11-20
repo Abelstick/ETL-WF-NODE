@@ -108,7 +108,36 @@ function normalizeDecimal(value) {
     return null;
 }
 
+function cleanTemperature(value) {
+    console.log('value→', value)
+    if (value === null || value === undefined) return "0";
+
+    let s = String(value).trim();
+    s = s.replace(",", ".");
+    s = s.replace(/[^\d.\-+]/g, "");
+    return s;
+}
+
+function normalizeVarchar(value) {
+    // null / undefined → cadena vacía
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    // número → string
+    if (typeof value === "number" && !isNaN(value)) {
+        return String(value);
+    }
+
+    // string → limpiar espacios
+    if (typeof value === "string") {
+        return value.trim();
+    }
+
+    // cualquier otro tipo → ""
+    return "";
+}
 
 
 
-export { cleanValue, toNumber, toBit, normalizeVarcharNumber, getMappedExcelKey, normalizeDecimal };
+export { cleanValue, toNumber, toBit, normalizeVarcharNumber, getMappedExcelKey, normalizeDecimal, cleanTemperature, normalizeVarchar };
