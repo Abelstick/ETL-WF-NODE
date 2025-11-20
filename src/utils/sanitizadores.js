@@ -17,34 +17,44 @@ function toNumber(value) {
     // Si ya es número
     if (typeof value === "number") return value;
 
-    // Convertir a string
     let str = String(value).trim();
 
-    // 1) Quitar caracteres invisibles (NBSP, BOM, ZERO-WIDTH)
+    // Quitar caracteres invisibles
     str = str.replace(/[\u00A0\u200B-\u200D\uFEFF]/g, "");
 
-    // 2) Quitar texto basura (KGS, KG, $, TON, etc.)
+    // Quitar letras y símbolos (KGS, KG, $, TON...)
     str = str.replace(/[^\d.,-]/g, "");
 
-    // 3) Si tiene punto y coma → formato US → quitar comas
+    // --- NUEVA LÓGICA PARA CASOS COMO "25.510.00" ---
+    const countDots = (str.match(/\./g) || []).length;
+    const countCommas = (str.match(/,/g) || []).length;
+
+    // Caso: múltiples puntos → reconstruir número
+    if (countDots > 1 && countCommas === 0) {
+        // "25.510.00" → quitar todos los puntos menos el último
+        const parts = str.split(".");
+        const decimal = parts.pop();         // último → decimal
+        const integer = parts.join("");      // unir los demás como miles
+        str = integer + "." + decimal;       // reconstruir
+    }
+
+    // Si tiene punto y coma → formato US → quitar comas
     if (str.includes(",") && str.includes(".")) {
         str = str.replace(/,/g, "");
     }
     else if (str.includes(",") && !str.includes(".")) {
-        // Caso solo comas: decidir si es decimal LATAM
         const parts = str.split(",");
         if (parts[1]?.length === 2) {
-            // decimal LATAM → "62,50" → "62.50"
-            str = parts[0] + "." + parts[1];
+            str = parts[0] + "." + parts[1]; // decimal latam
         } else {
-            // separador de miles → quitar comas
-            str = str.replace(/,/g, "");
+            str = str.replace(/,/g, "");     // separador de miles
         }
     }
 
     const num = Number(str);
     return isNaN(num) ? 0 : num;
 }
+
 
 
 function toBit(value) {

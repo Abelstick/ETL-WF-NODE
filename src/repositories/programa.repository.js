@@ -44,7 +44,6 @@ export async function getProductoByCampanha(idCampanha) {
 
 export async function insertPrograma(data) {
   const pool = await getConnection();
-  console.log(data.Monto)
   return await pool
     .request()
 
