@@ -11,7 +11,6 @@ function cleanText(value) {
 }
 
 function mapEstadoMaquila(raw) {
-    console.log('maqui', raw)
     const v = cleanText(raw);
 
     if (v.includes("PLANTA PROPIA")) return 1;

@@ -43,8 +43,6 @@ export async function getProductoByCampanha(idCampanha) {
 }
 
 export async function insertPrograma(data) {
-  console.log('aqui')
-  console.log(data.Temperatura)
   const pool = await getConnection();
   return await pool
     .request()

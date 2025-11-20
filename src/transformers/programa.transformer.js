@@ -116,7 +116,6 @@ export async function normalizeProgramaRow(raw) {
 
     // 9. Estado Maquila
     normalizeEstadoMaquila(data, raw["ESTADOMAQUILA"]);
-    console.log('data 1 +-', data)
     // 10. LAR desde raw
     const rawLAR = cleanValue(raw["LAR"]);
     data.LAR = rawLAR ? 1 : 0;
@@ -173,7 +172,6 @@ export async function normalizeProgramaRow(raw) {
     data.Monto = normalizeDecimal(data.Monto);
     data.Senasa = normalizeVarchar(data.Senasa);
     data.GuiaRemision = normalizeVarchar(data.GuiaRemision);
-    console.log('data 2 +-', data)
 
     return data;
 }

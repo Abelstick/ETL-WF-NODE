@@ -127,3 +127,41 @@ export function excelDateToJSDate(excelDate) {
   return null;
 }
 
+
+export function excelDateToJSDateBooking(excelDate) {
+  if (excelDate == null) return null;
+
+  // Si viene como string numérico ("45024")
+  if (typeof excelDate === "string" && /^\d+(\.\d+)?$/.test(excelDate)) {
+    excelDate = Number(excelDate);
+  }
+
+  // ----- 1) Serial de Excel -----
+  if (typeof excelDate === "number") {
+    return new Date((excelDate - 25569) * 86400 * 1000);
+  }
+
+  if (typeof excelDate !== "string") return null;
+  let str = excelDate.trim();
+
+  // dd/mm/yyyy HH:mm
+  const regexFechaHora = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})\s+(\d{1,2}):(\d{2})$/;
+  let m = str.match(regexFechaHora);
+  if (m) {
+    let [, d, mth, y, hh, mm] = m;
+    y = y.length === 2 ? 2000 + Number(y) : Number(y);
+    return new Date(y, mth - 1, d, hh, mm);
+  }
+
+  // dd/mm/yyyy
+  const regexFecha = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+  m = str.match(regexFecha);
+  if (m) {
+    let [, d, mth, y] = m;
+    y = y.length === 2 ? 2000 + Number(y) : Number(y);
+    return new Date(y, mth - 1, d);
+  }
+
+  return null;
+}
+

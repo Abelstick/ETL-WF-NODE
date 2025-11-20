@@ -109,7 +109,6 @@ function normalizeDecimal(value) {
 }
 
 function cleanTemperature(value) {
-    console.log('value→', value)
     if (value === null || value === undefined) return "0";
 
     let s = String(value).trim();

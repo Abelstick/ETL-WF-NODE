@@ -1,6 +1,6 @@
 import { bookingMapping } from "../mappings/booking.js";
 import { getProductoByCampanha, findPuertoByName, findLugarEmisionBLByName, findCondicionFleteByName } from "../repositories/booking.repository.js";
-import { excelDateToJSDate } from "../utils/excel.js";
+import { excelDateToJSDate, excelDateToJSDateBooking } from "../utils/excel.js";
 import { cleanValue, getMappedExcelKey, normalizeVarcharNumber, toBit, toNumber } from "../utils/sanitizadores.js";
 
 export async function normalizeBookingRow(raw) {
@@ -44,9 +44,17 @@ export async function normalizeBookingRow(raw) {
 
 
     // Normalizar ETA y ETD
+    console.log('p1 ---')
+    console.log(data.ETA)
+    console.log(data.ETD)
+    console.log(typeof data.ETA, data.ETA);
 
-    data.ETA = excelDateToJSDate(data.ETA) || null;
-    data.ETD = excelDateToJSDate(data.ETD) || null;
+    data.ETA = excelDateToJSDateBooking(data.ETA) || null;
+    data.ETD = excelDateToJSDateBooking(data.ETD) || null;
+    console.log('p2 ---')
+    console.log(data.ETA)
+    console.log(data.ETD)
+    console.log(typeof data.ETA, data.ETA);
 
 
     // Obtener IdProducto según campaña
