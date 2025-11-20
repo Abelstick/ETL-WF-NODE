@@ -172,6 +172,9 @@ export async function normalizeProgramaRow(raw) {
     data.Monto = normalizeDecimal(data.Monto);
     data.Senasa = normalizeVarchar(data.Senasa);
     data.GuiaRemision = normalizeVarchar(data.GuiaRemision);
+    data.Po = normalizeVarchar(data.Po);
+    data.Invoice = normalizeVarchar(data.Invoice);
+    data.NumeroFactura = normalizeVarchar(data.NumeroFactura);
 
     return data;
 }
