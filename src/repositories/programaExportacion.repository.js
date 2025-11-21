@@ -53,11 +53,11 @@ export async function findProgramaExportacionByExcel({
         AND IdTerminoPago = @IdTerminoPago
         AND ISNULL(ObsFechaCarga,'') = ISNULL(@ObsFechaCarga,'')
         AND ISNULL(PedidoDinamic,'') = ISNULL(@PedidoDinamic,'')
-        AND ISNULL(NumeroFactura,'') = ISNULL(@NumeroFactura,'')
         AND MontoMaquila = @MontoMaquila
         AND FechaEmisionMaquila = @FechaEmisionMaquila
         AND IdCampanha = @IdCampanha
-    `);
+        `);
+        //AND ISNULL(NumeroFactura,'') = ISNULL(@NumeroFactura,'')
 
   return result.recordset[0] ?? null;
 }
