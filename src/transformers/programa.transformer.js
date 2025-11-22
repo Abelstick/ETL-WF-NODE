@@ -175,6 +175,7 @@ export async function normalizeProgramaRow(raw) {
     data.Po = normalizeVarchar(data.Po);
     data.Invoice = normalizeVarchar(data.Invoice);
     data.NumeroFactura = normalizeVarchar(data.NumeroFactura);
+    data.PedidoDinamic = normalizeVarchar(data.PedidoDinamic);
 
     return data;
 }

@@ -26,9 +26,9 @@ function normalizeForSql(value, type) {
       // --- SOPORTE PARA "25.510.00" ---
       if (countDots > 1 && countCommas === 0) {
         const parts = str.split(".");
-        const decimal = parts.pop();      
-        const integer = parts.join("");    
-        str = integer + "." + decimal;     
+        const decimal = parts.pop();
+        const integer = parts.join("");
+        str = integer + "." + decimal;
       }
 
       // --- FORMATO US: 12,345.67 ---
@@ -166,22 +166,22 @@ export async function mergeService({ bookingPath, programaPath }) {
         SELECT TOP 1 IdProgramaExportacion
         FROM ProgramaExportacion
         WHERE CodigoProduccion = @CodigoProduccion
-          AND IdPlanta = @IdPlanta
-          AND IdVariedad = @IdVariedad
-          AND Senasa = @Senasa
-          AND Invoice = @Invoice
-          AND Monto = @Monto
-          AND FOB = @FOB
-          AND PesoNeto = @PesoNeto
-          AND PesoBruto = @PesoBruto
-          AND IdTerminoPago = @IdTerminoPago
-          AND PedidoDinamic = @PedidoDinamic
-          AND MontoMaquila = @MontoMaquila
-          AND IdCampanha = @IdCampanha
-          `);
-      // AND ObsFechaCarga = @ObsFechaCarga
-      //AND NumeroFactura = @NumeroFactura
-      //AND FechaEmisionMaquila = @FechaEmisionMaquila
+        `);
+        // AND IdPlanta = @IdPlanta
+        // AND IdVariedad = @IdVariedad
+        // AND Senasa = @Senasa
+        // AND Invoice = @Invoice
+          // AND Monto = @Monto
+          // AND FOB = @FOB
+          // AND PesoNeto = @PesoNeto
+          // AND PesoBruto = @PesoBruto
+          // AND IdTerminoPago = @IdTerminoPago
+          // AND PedidoDinamic = @PedidoDinamic
+          // AND MontoMaquila = @MontoMaquila
+          // AND IdCampanha = @IdCampanha
+          // AND ObsFechaCarga = @ObsFechaCarga
+          //AND NumeroFactura = @NumeroFactura
+          //AND FechaEmisionMaquila = @FechaEmisionMaquila
 
       const IdProgramaExportacion = result.recordset[0]?.IdProgramaExportacion;
       if (!IdProgramaExportacion) throw new Error(`No existe ProgramaExportacion exacto para ${prog.CodigoProduccion}`);
@@ -203,11 +203,15 @@ export async function mergeService({ bookingPath, programaPath }) {
       });
 
       processed.push({ booking: book.booking, ...prog, IdProgramaExportacion, IdReserva, IdEmbarque: sp.IdEmbarque });
-      logLines.push(`✔ OK Fila ${i + 2} – Booking ${book.booking}`);
+      logLines.push(
+        `✔ OK Fila ${i + 2} – Booking: ${book.booking} – CodProd: ${prog.CodigoProduccion} – IdProg: ${IdProgramaExportacion} – IdReserva: ${IdReserva}`
+      );
 
     } catch (e) {
       errors.push({ index: i + 2, booking: book.booking, prog, error: e.message });
-      logLines.push(`❌ ERROR Fila ${i + 2} – ${e.message}`);
+      logLines.push(
+        `❌ ERROR Fila ${i + 2} – Booking: ${book.booking || "N/A"} – CodProd: ${prog?.CodigoProduccion || "N/A"} "N/A"} – ${e.message}`
+      );
     }
   }
 
