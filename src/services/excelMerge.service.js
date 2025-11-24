@@ -163,10 +163,18 @@ export async function mergeService({ bookingPath, programaPath }) {
       q.input("IdCampanha", sql.BigInt, normalizeForSql(prog.IdCampanha, "bigint"));
 
       const result = await q.query(`
-        SELECT TOP 1 IdProgramaExportacion
-        FROM ProgramaExportacion
-        WHERE CodigoProduccion = @CodigoProduccion
-        `);
+          SELECT TOP 1 pe.IdProgramaExportacion
+          FROM ProgramaExportacion pe
+          WHERE pe.CodigoProduccion = @CodigoProduccion
+            AND pe.IdCampanha = @IdCampanha
+            AND NOT EXISTS (
+                  SELECT 1
+                  FROM ProgramaExportacionReserva per
+                  WHERE per.IdProgramaExportacion = pe.IdProgramaExportacion
+            )
+          ORDER BY pe.IdProgramaExportacion ASC
+      `);
+
         // AND IdPlanta = @IdPlanta
         // AND IdVariedad = @IdVariedad
         // AND Senasa = @Senasa
@@ -178,7 +186,6 @@ export async function mergeService({ bookingPath, programaPath }) {
           // AND IdTerminoPago = @IdTerminoPago
           // AND PedidoDinamic = @PedidoDinamic
           // AND MontoMaquila = @MontoMaquila
-          // AND IdCampanha = @IdCampanha
           // AND ObsFechaCarga = @ObsFechaCarga
           //AND NumeroFactura = @NumeroFactura
           //AND FechaEmisionMaquila = @FechaEmisionMaquila
